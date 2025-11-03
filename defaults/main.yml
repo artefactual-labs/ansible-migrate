@@ -79,7 +79,7 @@ migrate_temporal_extra_args: []
 migrate_service_environment: {}
 
 # Skip RPM GPG checks when installing from a local artifact.
-migrate_disable_gpg_check: false
+migrate_disable_gpg_check: true
 
 # Per-OS-family package type mappings.
 migrate_package_type_map:
