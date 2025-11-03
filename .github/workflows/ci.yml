@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install \
+            'ansible-core==2.15.*' \
+            'ansible-lint==6.*' \
+            'yamllint'
+
+      - name: Run ansible-lint
+        env:
+          ANSIBLE_LOCAL_TEMP: /tmp/ansible
+        run: ansible-lint
+
+      - name: Run yamllint
+        run: yamllint .
