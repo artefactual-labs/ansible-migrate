@@ -1,0 +1,25 @@
+[Unit]
+Description=Temporal development server for Migrate
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/usr/bin/temporal
+
+[Service]
+Type=simple
+User={{ temporal_runtime_user }}
+Group={{ temporal_runtime_group }}
+Environment=HOME={{ migrate_data_dir }}
+Environment=XDG_CONFIG_HOME=/etc
+WorkingDirectory={{ migrate_data_dir }}
+ExecStart=/usr/bin/temporal {% set temporal_args = [
+    'server', 'start-dev',
+    '--port', migrate_temporal_grpc_port | string,
+    '--ui-port', migrate_temporal_web_port | string,
+    '--db-filename', migrate_data_dir ~ '/' ~ migrate_temporal_db_filename,
+] + migrate_temporal_extra_args %}{{ temporal_args | map('quote') | join(' ') }}
+Restart=on-failure
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

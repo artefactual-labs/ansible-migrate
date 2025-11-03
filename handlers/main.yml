@@ -1,0 +1,14 @@
+---
+- name: Restart temporal service
+  ansible.builtin.systemd:
+    name: temporal.service
+    state: restarted
+    daemon_reload: true
+  listen: restart temporal
+
+- name: Restart migrate service
+  ansible.builtin.systemd:
+    name: migrate.service
+    state: restarted
+    daemon_reload: true
+  listen: restart migrate

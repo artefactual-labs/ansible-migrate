@@ -1,0 +1,122 @@
+# Default configuration for the migrate role.
+---
+migrate_version: "v0.1.0"
+
+# Map of system architectures to release artifact suffixes.
+migrate_arch_map:
+  x86_64: amd64
+  amd64: amd64
+  aarch64: arm64
+  arm64: arm64
+
+# Base URL for GitHub releases. Override if using a mirror.
+migrate_release_base_url: "https://github.com/artefactual-labs/migrate/releases/download"
+
+# Optional fully-qualified package URL. When set, overrides the release base URL.
+migrate_package_url: ""
+
+# Directory paths managed by the role. When left empty the config directory is
+# resolved to `<migrate_service_user home>/.config/migrate`.
+migrate_config_dir: ""
+migrate_data_dir: "/var/lib/migrate"
+
+# Runtime identities for the services.
+temporal_runtime_user: "temporal"
+temporal_runtime_group: "{{ temporal_runtime_user }}"
+migrate_service_user: "archivematica"
+migrate_service_group: "{{ migrate_service_user }}"
+migrate_service_home: "/var/lib/archivematica"
+
+# Storage Service API credentials.
+migrate_storage_service_api_url: "http://localhost:8001"
+migrate_storage_service_api_username: "test"
+migrate_storage_service_api_key: "test"
+
+# Storage Service management execution details.
+migrate_storage_service_host_python_path: "/usr/share/archivematica/virtualenvs/archivematica-storage-service/bin/python3"
+migrate_storage_service_host_manage_path: "/opt/archivematica/archivematica-storage-service/src/archivematica/storage_service/manage.py"
+migrate_storage_service_host_environment:
+  DJANGO_SETTINGS_MODULE: "archivematica.storage_service.storage_service.settings.production"
+
+# Storage Service location identifiers.
+migrate_storage_service_source_location_id: "source-location-uuid"
+migrate_storage_service_move_target_location_id: "location-uuid"
+migrate_storage_service_replication_targets:
+  - id: "replica-location-1"
+    name: "Replica Location 1"
+
+# SELinux support (labels and tooling).
+migrate_selinux_required_packages:
+  RedHat:
+    - policycoreutils-python-utils
+    - selinux-policy-targeted
+  Debian: []
+migrate_selinux_port_labels:
+  - port: "{{ migrate_temporal_grpc_port }}"
+    proto: tcp
+    type: http_port_t
+  - port: "{{ migrate_temporal_web_port }}"
+    proto: tcp
+    type: http_port_t
+
+# Path to the main configuration file relative to config dir.
+migrate_config_filename: "config.json"
+
+# SQLite database filename placed inside the data dir.
+migrate_sqlite_filename: "migrate.db"
+
+# Location of the Temporal dev server database.
+migrate_temporal_db_filename: "temporal.db"
+
+# Temporal service ports.
+migrate_temporal_grpc_port: 7233
+migrate_temporal_web_port: 8233
+
+# Extra arguments passed to the Temporal CLI service.
+migrate_temporal_extra_args: []
+
+# Additional environment variables for the migrate worker service.
+migrate_service_environment: {}
+
+# Skip RPM GPG checks when installing from a local artifact.
+migrate_disable_gpg_check: false
+
+# Per-OS-family package type mappings.
+migrate_package_type_map:
+  Debian: deb
+  RedHat: rpm
+
+# Optional checksum string understood by ansible.builtin.get_url (e.g. sha256:...).
+migrate_package_checksum: ""
+
+# Main configuration rendered into config.json.
+migrate_config:
+  database:
+    engine: sqlite
+    sqlite:
+      path: "{{ migrate_service_home }}/.config/migrate/{{ migrate_sqlite_filename }}"
+  temporal:
+    namespace: default
+    address: "127.0.0.1:{{ migrate_temporal_grpc_port }}"
+    task_queue: default
+    max_concurrent_activity_execution_size: 1000
+    max_concurrent_local_activity_execution_size: 1000
+    max_concurrent_workflow_task_execution_size: 1000
+  storage_service:
+    api:
+      url: "{{ migrate_storage_service_api_url }}"
+      username: "{{ migrate_storage_service_api_username }}"
+      api_key: "{{ migrate_storage_service_api_key }}"
+    management:
+      mode: host
+      host:
+        python_path: "{{ migrate_storage_service_host_python_path }}"
+        manage_path: "{{ migrate_storage_service_host_manage_path }}"
+        environment: "{{ migrate_storage_service_host_environment | to_json | from_json }}"
+    locations:
+      source_location_id: "{{ migrate_storage_service_source_location_id }}"
+      move_target_location_id: "{{ migrate_storage_service_move_target_location_id }}"
+      replication_targets: "{{ migrate_storage_service_replication_targets | to_json | from_json }}"
+  workflows:
+    move:
+      check_fixity: false

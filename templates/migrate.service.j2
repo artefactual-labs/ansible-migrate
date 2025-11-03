@@ -1,0 +1,24 @@
+[Unit]
+Description=Migrate Temporal worker
+After=network-online.target temporal.service
+Wants=network-online.target
+Requires=temporal.service
+ConditionPathExists=/usr/bin/migrate
+
+[Service]
+Type=simple
+User={{ migrate_service_user }}
+Group={{ migrate_service_group }}
+Environment=HOME={{ migrate_service_home }}
+Environment=XDG_CONFIG_HOME={{ migrate_service_home }}/.config
+WorkingDirectory={{ migrate_service_home }}
+{% for key, value in migrate_service_environment.items() %}
+Environment={{ key }}={{ value }}
+{% endfor %}
+ExecStart=/usr/bin/migrate worker
+Restart=on-failure
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
