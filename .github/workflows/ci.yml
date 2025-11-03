@@ -31,6 +31,8 @@ jobs:
       - name: Run ansible-lint
         env:
           ANSIBLE_LOCAL_TEMP: /tmp/ansible
+          ANSIBLE_ROLES_PATH: ${{ github.workspace }}
+          ANSIBLE_CONFIG: ${{ github.workspace }}/ansible.cfg
         run: ansible-lint
 
       - name: Run yamllint
