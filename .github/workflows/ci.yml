@@ -28,6 +28,9 @@ jobs:
             'ansible-lint==6.*' \
             'yamllint'
 
+      - name: Prepare role path for lint
+        run: ln -s "$PWD" "$PWD/migrate"
+
       - name: Run ansible-lint
         env:
           ANSIBLE_LOCAL_TEMP: /tmp/ansible
