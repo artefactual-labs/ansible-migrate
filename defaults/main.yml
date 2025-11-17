@@ -1,6 +1,6 @@
 # Default configuration for the migrate role.
 ---
-migrate_version: "v0.1.0"
+migrate_version: "v0.1.1"
 
 # Map of system architectures to release artifact suffixes.
 migrate_arch_map:
