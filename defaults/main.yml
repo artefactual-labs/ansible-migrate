@@ -89,6 +89,10 @@ migrate_package_type_map:
 # Optional checksum string understood by ansible.builtin.get_url (e.g. sha256:...).
 migrate_package_checksum: ""
 
+# Workflows move options
+migrate_workflows_move_check_fixity: false
+migrate_workflows_move_only_index_update: false
+
 # Main configuration rendered into config.json.
 migrate_config:
   database:
@@ -119,4 +123,5 @@ migrate_config:
       replication_targets: "{{ migrate_storage_service_replication_targets | to_json | from_json }}"
   workflows:
     move:
-      check_fixity: false
+      check_fixity: "{{ migrate_workflows_move_check_fixity }}"
+      only_index_update: "{{ migrate_workflows_move_only_index_update }}"
