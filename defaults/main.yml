@@ -89,6 +89,10 @@ migrate_package_type_map:
 # Optional checksum string understood by ansible.builtin.get_url (e.g. sha256:...).
 migrate_package_checksum: ""
 
+# Elasticsearch settings
+migrate_elastic_host: "http://localhost:9200"
+migrate_elastic_version: "v6"
+
 # Workflows move options
 migrate_workflows_move_check_fixity: false
 migrate_workflows_move_only_index_update: false
@@ -121,6 +125,9 @@ migrate_config:
       source_location_id: "{{ migrate_storage_service_source_location_id }}"
       move_target_location_id: "{{ migrate_storage_service_move_target_location_id }}"
       replication_targets: "{{ migrate_storage_service_replication_targets | to_json | from_json }}"
+  elastic:
+    host: "{{ migrate_elastic_host }}"
+    version: "{{ migrate_elastic_version }}"
   workflows:
     move:
       check_fixity: "{{ migrate_workflows_move_check_fixity }}"
